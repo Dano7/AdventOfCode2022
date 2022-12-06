@@ -1,15 +1,14 @@
-﻿using System.Text;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
 
 var input = File.ReadAllText("..\\..\\..\\..\\input\\Day5.txt", Encoding.UTF8);
 var lines = input.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries).ToArray();
 var stacksLine = lines.First(s => !s.Contains('['));
 var stacknums = stacksLine.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-
-var stackLines = lines.Take(Array.IndexOf(lines, stacksLine)).Reverse();
+var stackLines = lines.Take(Array.IndexOf(lines, stacksLine)).Reverse().ToArray();
 var stacks = stacknums.ToDictionary(Convert.ToInt32, stacknum => new Stack<char>());
 
 BuildStacks(stackLines, stacks);
-
 void BuildStacks(IEnumerable<string> enumerable, Dictionary<int, Stack<char>> dictionary)
 {
 	foreach (var line in enumerable)
@@ -28,7 +27,7 @@ var moves = instructionLines.Select(s =>
 	return (count: Convert.ToInt32(x[0]), from: Convert.ToInt32(x[1]), to: Convert.ToInt32(x[2]));
 }).ToArray();
 
-ExecuteMovesPart2(stacks, moves);
+ExecuteMoves(stacks, moves);
 
 void ExecuteMoves(Dictionary<int, Stack<char>> s, (int count, int from, int to)[] m)
 {
@@ -36,6 +35,14 @@ void ExecuteMoves(Dictionary<int, Stack<char>> s, (int count, int from, int to)[
 		for (var i = 0; i < move.count; i++)
 			s[move.to].Push(s[move.from].Pop());
 }
+
+Console.WriteLine($"Message: {(string?)stacks.Aggregate(string.Empty, (current, stack) => string.Concat(current, stack.Value.Peek()))}");
+
+//Part 2
+// rebuild stacks
+var stacks2 = stacknums.ToDictionary(Convert.ToInt32, stacknum => new Stack<char>());
+BuildStacks(stackLines, stacks2);
+ExecuteMovesPart2(stacks2, moves);
 
 void ExecuteMovesPart2(Dictionary<int, Stack<char>> s, (int count, int from, int to)[] m)
 {
@@ -49,6 +56,4 @@ void ExecuteMovesPart2(Dictionary<int, Stack<char>> s, (int count, int from, int
 	}
 }
 
-var message = stacks.Aggregate(string.Empty, (current, stack) => string.Concat(current, stack.Value.Peek()));
-
-Console.WriteLine($"Message: {message}");
+Console.WriteLine($"Message Part2: {(string?)stacks2.Aggregate(string.Empty, (current, stack) => string.Concat(current, stack.Value.Peek()))}");
